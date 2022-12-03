@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Random;
 
-public class ProductArray extends Product {
+public class ProductArray {
     /**
      * Generate an array of predefined {@code "n"} products
      * @param n the number of products need to be generated

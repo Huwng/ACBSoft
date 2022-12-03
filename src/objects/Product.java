@@ -118,11 +118,6 @@ public class Product {
         return Product_ID == product.Product_ID && Double.compare(product.Product_Price, Product_Price) == 0 && Product_Category == product.Product_Category && Objects.equals(Product_Name, product.Product_Name) && Objects.equals(Product_Manufacturer, product.Product_Manufacturer) && Objects.equals(Product_Description, product.Product_Description);
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(Product_ID, Product_Category, Product_Name, Product_Price, Product_Manufacturer, Product_Description);
-    }
-
     //cleanup method
     @Override
     @SuppressWarnings("removal")
