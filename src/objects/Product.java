@@ -2,7 +2,7 @@ package objects;
 
 import java.util.Objects;
 
-public class Product {
+public abstract class Product {
     //constants
     public static final short PRODUCT_ID = 0;
     public static final Category PRODUCT_CATEGORY = Category.DEFAULT;
@@ -110,13 +110,8 @@ public class Product {
                 '}';
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Product product = (Product) o;
-        return Product_ID == product.Product_ID && Double.compare(product.Product_Price, Product_Price) == 0 && Product_Category == product.Product_Category && Objects.equals(Product_Name, product.Product_Name) && Objects.equals(Product_Manufacturer, product.Product_Manufacturer) && Objects.equals(Product_Description, product.Product_Description);
-    }
+    //abstract method
+    public abstract double calculatePrice();
 
     //cleanup method
     @Override

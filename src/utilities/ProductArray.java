@@ -2,19 +2,17 @@ package utilities;
 
 import objects.*;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Random;
+import java.util.*;
 
 public class ProductArray {
     /**
      * Generate an array of predefined {@code "n"} products
      * @param n the number of products need to be generated
-     * @return a java.Arrays of Product objects ({@code Product[]})
+     * @return an {@code ArrayList} of {@code Product} objects ({@code ArrayList<Product>})
      */
-    public static Product[] generateProducts(int n){
+    public static ArrayList<Product> generateProducts(int n){
         //initiate our "catalogue"
-        Product[] catalogue = new Product[n];
+        ArrayList<Product> catalogue = new ArrayList<>();
         //array of names for products
         String[] WOODFURNITURE_product_Name = {
                 "Bàn phòng khách", "Bàn ăn", "Ghế bành", "Giường", "Sập", "Tủ quần áo"
@@ -31,43 +29,49 @@ public class ProductArray {
         short index = 1;
         //get the size of Category enum to randomize later
         final int CategorySize = Category.values().length;
+        final int WoodTypeSize = WoodType.values().length;
         //initiate random engine
         final Random random = new Random();
         //for-index loop through the product catalogue to set the properties of each product
-        for (int i = 0, catalogueLength = catalogue.length; i < catalogueLength; i++) {
-            catalogue[i] = new Product();
-            catalogue[i].setProduct_ID(index);
-            catalogue[i].setProduct_Category(Category.values()[random.nextInt(CategorySize - 1) + 1 /*randomize between 1 and CategorySize-1 (in this case, 2)*/]);
-            //if the product is a wood furniture, use the name in WOODFURNITURE_product_Name as the product name, else if the product is a tile, use the name in TILES_product_Name instead
-            if (catalogue[i].getProduct_Category() == Category.WOODFURNITURE) {
-                catalogue[i].setProduct_Name(WOODFURNITURE_product_Name[random.nextInt(WOODFURNITURE_product_Name.length)]);
-            } else if (catalogue[i].getProduct_Category() == Category.TILES) {
-                catalogue[i].setProduct_Name(TILES_product_Name[random.nextInt(TILES_product_Name.length)]);
+        for (int i = 0; i < n; i++) {
+            Product product = null;
+            switch (Category.values()[random.nextInt(CategorySize - 1) + 1]) {
+                case TILES -> product = new Tiles(random.nextDouble()*100,random.nextDouble()*100);
+                case WOODFURNITURE -> product = new WoodFurniture(random.nextDouble()*100,WoodType.values()[random.nextInt(WoodTypeSize)]);
             }
-            catalogue[i].setProduct_Price(random.nextDouble()*100);
-            catalogue[i].setProduct_Manufacturer(product_manufacturer[random.nextInt(product_manufacturer.length)]);
+            if (product == null) {i--;continue;}; //if somehow product is null after the switch statement (which it shouldn't be), decrease i to retry. Code is added to avoid using "assert", but a null check should NOT have been here either way.
+            if (product.getProduct_Category() == Category.WOODFURNITURE) {
+                product.setProduct_Name(WOODFURNITURE_product_Name[random.nextInt(WOODFURNITURE_product_Name.length)]);
+
+            } else if (product.getProduct_Category() == Category.TILES) {
+                product.setProduct_Name(TILES_product_Name[random.nextInt(TILES_product_Name.length)]);
+            }
+            product.setProduct_ID(index);
+            product.setProduct_Price(product.calculatePrice());
+            product.setProduct_Manufacturer(product_manufacturer[random.nextInt(product_manufacturer.length)]);
+            catalogue.add(product);
             index++;
         }
         return catalogue;
     }
 
     /**
-     * Prints out a {@code Product[]} array to {@code System.out}
-     * @param catalogue {@code Product[]} array
+     * Prints out a {@code ArrayList<Product>} array to {@code System.out}
+     * @param catalogue {@code ArrayList<Product>} array
      */
-    public static void printProducts(Product[] catalogue){
+    public static void printProducts(ArrayList<Product> catalogue){
         for (Product product:catalogue) {
             System.out.println(product);
         }
     }
 
     /**
-     * Prints out a {@code Product} in a {@code Product[]} array given its {@code Product_ID}
-     * @param catalogue {@code Product[]} array
+     * Prints out a {@code Product} in a {@code ArrayList<Product>} array given its {@code Product_ID}
+     * @param catalogue {@code ArrayList<Product>} array
      * @param ID {@code Product_ID} of the {@code Product}
      */
 
-    public static void printProduct(Product[] catalogue, short ID){
+    public static void printProduct(ArrayList<Product> catalogue, short ID){
         for (Product product:catalogue) {
             if (product.getProduct_ID()==ID){
                 System.out.println(product);
@@ -77,34 +81,34 @@ public class ProductArray {
     }
 
     /**
-     * Sort a {@code Product[]} array by property {@code Product_Price} (in ascending order)
-     * @param catalogue {@code Product[]} array
+     * Sort a {@code ArrayList<Product>} array by property {@code Product_Price} (in ascending order)
+     * @param catalogue {@code ArrayList<Product>} array
      */
-    public static void sortProductsbyPrice(Product[] catalogue){
-        Arrays.sort(catalogue, Comparator.comparingDouble(Product::getProduct_Price)); //one-liner for sorting objects in ascending order by a property, available from Java 8
+    public static void sortProductsbyPrice(ArrayList<Product> catalogue){
+        catalogue.sort(Comparator.comparing(Product::getProduct_Price));
     }
     /**
-     * Sort a {@code Product[]} array by property {@code Product_Name} (in ascending order)
-     * @param catalogue {@code Product[]} array
+     * Sort a {@code ArrayList<Product>} array by property {@code Product_Name} (in ascending order)
+     * @param catalogue {@code ArrayList<Product>} array
      */
-    public static void sortProductsbyName(Product[] catalogue){
-        Arrays.sort(catalogue, Comparator.comparing(Product::getProduct_Name)); //sort Product[] by the ascending lexicographical order of Product.getProduct_Name()
+    public static void sortProductsbyName(ArrayList<Product> catalogue){
+        catalogue.sort(Comparator.comparing(Product::getProduct_Name));
     }
     /**
-     * Sort a {@code Product[]} array by property Product_Manufacturer (in ascending order)
-     * @param catalogue {@code Product[]} array
+     * Sort a {@code ArrayList<Product>} array by property Product_Manufacturer (in ascending order)
+     * @param catalogue {@code ArrayList<Product>} array
      */
-    public static void sortProductsbyManufacturer(Product[] catalogue){
-        Arrays.sort(catalogue, Comparator.comparing(Product::getProduct_Manufacturer)); //sort Product[] by the ascending lexicographical order of Product.getProduct_Manufacturer()
+    public static void sortProductsbyManufacturer(ArrayList<Product> catalogue){
+        catalogue.sort(Comparator.comparing(Product::getProduct_Manufacturer));
     }
 
     /**
-     * Search for a Product in a {@code Product[]} array given its {@code Product_ID}
-     * @param catalogue {@code Product[]} array
+     * Search for a Product in a {@code ArrayList<Product>} array given its {@code Product_ID}
+     * @param catalogue {@code ArrayList<Product>} array
      * @param ID {@code Product_ID} of the Product needed
-     * @return Product if product is found, otherwise returns {@code null}
+     * @return {@code Product} if product is found, otherwise returns {@code null}
      */
-    public static Product searchProduct(Product[] catalogue,short ID) {
+    public static Product searchProduct(ArrayList<Product> catalogue,short ID) {
         Product result = null;
         for (Product product : catalogue) {
             if (product.getProduct_ID() == ID) {
@@ -117,48 +121,80 @@ public class ProductArray {
     }
 
     /**
-     * Update parameters of a {@code Product} in a {@code Product[]} array with parameters below given its {@code Product_ID}.<br>
-     * If update to a parameter is not needed, use {@code null} and {@code NaN} for String and Number parameter respectively
-     * @param catalogue {@code Product[]} array that has the {@code Product} needed to be updated
+     * Update a {@code Product} in {@code ArrayList<Product>} array to be a {@code Tiles} product
+     * @param catalogue {@code ArrayList<Product>} array that has the {@code Product} needed to be updated
      * @param ID {@code Product_ID} of the {@code Product}
-     * @param category Updated value for {@code Product_Category}, sets to {@code null} if update is not needed
      * @param name Updated value for {@code Product_Name}, sets to {@code null} if update is not needed
      * @param price Updated value for {@code Product_Price}, sets to {@code NaN} if update is not needed
      * @param manufacturer Updated value for {@code Product_Manufacturer}, sets to {@code null} if update is not needed
      * @param description Updated value for {@code Product_Description}, sets to {@code null} if update is not needed
+     * @param side1 Updated value for {@code side1}
+     * @param side2 Updated value for {@code side2}
      */
-    public static void updateProduct(Product[] catalogue, short ID, Category category, String name, double price, String manufacturer, String description){
-        if (ID > catalogue.length || ID < 0) {
+    public static void updateTilesProduct(ArrayList<Product> catalogue, short ID, String name, double price, String manufacturer, String description, double side1, double side2){
+        if (ID > catalogue.size() || ID < 0) {
             System.out.println("Can't update a product that doesn't exist!");
             return;
         }
-        for (Product product:catalogue) {
-            if (product.getProduct_ID()==ID){
-                if (category != null) product.setProduct_Category(category);
-                if (name != null) product.setProduct_Name(name);
-                if (!Double.isNaN(price)) product.setProduct_Price(price);
-                if (manufacturer != null) product.setProduct_Manufacturer(manufacturer);
-                if (description != null) product.setProduct_Description(description);
+        for (int i = 0, catalogueLength = catalogue.size(); i < catalogueLength; i++) {
+            if (catalogue.get(i).getProduct_ID() == ID) {
+                catalogue.set(i, new Tiles(side1, side2));
+                catalogue.get(i).setProduct_ID(ID);
+                if (name != null) catalogue.get(i).setProduct_Name(name);
+                if (!Double.isNaN(price)) catalogue.get(i).setProduct_Price(price);
+                else catalogue.get(i).setProduct_Price(catalogue.get(i).calculatePrice());
+                if (manufacturer != null) catalogue.get(i).setProduct_Manufacturer(manufacturer);
+                if (description != null) catalogue.get(i).setProduct_Description(description);
                 break;
             }
         }
     }
 
     /**
-     * Removes a {@code Product} from a {@code Product[]} array given its {@code Product_ID}
-     * @param catalogue {@code Product[]} array
-     * @param ID {@code Product_ID} of the {@code Product} need to be deleted
-     * @return new {@code Product[]} array to be reassigned to the old array
+     * Update a {@code Product} in {@code ArrayList<Product>} array to be a {@code WoodFurniture} product
+     * @param catalogue {@code ArrayList<Product>} array that has the {@code Product} needed to be updated
+     * @param ID {@code Product_ID} of the {@code Product}
+     * @param name Updated value for {@code Product_Name}, sets to {@code null} if update is not needed
+     * @param price Updated value for {@code Product_Price}, sets to {@code NaN} if update is not needed
+     * @param manufacturer Updated value for {@code Product_Manufacturer}, sets to {@code null} if update is not needed
+     * @param description Updated value for {@code Product_Description}, sets to {@code null} if update is not needed
+     * @param weight Updated value for {@code weight}
+     * @param woodType Updated value for {@code woodType}
      */
-    public static Product[] deleteProduct(Product[] catalogue, short ID){
-        return Arrays.stream(catalogue).filter(product -> product.getProduct_ID()!=ID).toArray(Product[]::new); //one-liner to remove object from an array using Java stream (available from Java 8)
+    public static void updateFurnitureProduct(ArrayList<Product> catalogue, short ID, String name, double price, String manufacturer, String description, double weight, WoodType woodType){
+        if (ID > catalogue.size() || ID < 0) {
+            System.out.println("Can't update a product that doesn't exist!");
+            return;
+        }
+        for (int i = 0, catalogueLength = catalogue.size(); i < catalogueLength; i++) {
+            if (catalogue.get(i).getProduct_ID() == ID) {
+                catalogue.set(i, new WoodFurniture(weight, woodType));
+                catalogue.get(i).setProduct_ID(ID);
+                if (name != null) catalogue.get(i).setProduct_Name(name);
+                if (!Double.isNaN(price)) catalogue.get(i).setProduct_Price(price);
+                else catalogue.get(i).setProduct_Price(catalogue.get(i).calculatePrice());
+                if (manufacturer != null) catalogue.get(i).setProduct_Manufacturer(manufacturer);
+                if (description != null) catalogue.get(i).setProduct_Description(description);
+                break;
+            }
+        }
     }
 
     /**
-     * Prints out the number of each type of product in a {@code Product[]} array
-     * @param catalogue {@code Product[]} array
+     * Removes a {@code Product} from a {@code ArrayList<Product>} array given its {@code Product_ID}
+     * @param catalogue {@code ArrayList<Product>} array
+     * @param ID {@code Product_ID} of the {@code Product} need to be deleted
+     * //@return new {@code ArrayList<Product>} array to be reassigned to the old array
      */
-    public static void printAnalytic(Product[] catalogue){
+    public static void deleteProduct(ArrayList<Product> catalogue, short ID){
+        catalogue.removeIf(product -> product.getProduct_ID() == ID);
+    }
+
+    /**
+     * Prints out the number of each type of product in a {@code ArrayList<Product>} array
+     * @param catalogue {@code ArrayList<Product>} array
+     */
+    public static void printAnalytic(ArrayList<Product> catalogue){
         short countWOODFUTNITURE=0,countTILES=0;
         for (Product product:catalogue) {
             switch (product.getProduct_Category()) {
